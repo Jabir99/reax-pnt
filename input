@@ -1,0 +1,105 @@
+#####################Initialization####################
+
+units		 real
+dimension        3
+boundary         p p p
+atom_style       charge
+
+####################Aotm Definition###################
+
+read_data        box.data
+restart          10000            restart.*
+#read_restart restart.0000
+
+#############Define Intraction Potential##############
+
+pair_style       reax/c lmp_control
+pair_coeff       * *    ffield_PtNiCHO_2016 Pt C H O
+fix              1      all qeq/reax 1 0.0 10.0 1e-6 reax/c
+
+
+###########Setting and Output of Simulation###########
+ 
+group            C      type 1 
+group            HO     type 2 3
+group            Pt     type 4
+group            Ox     type 3
+group            NT     type 1 4
+
+fix              fix    all     rigid single
+fix              set    NT      setforce 0. 0. 0.
+velocity         all    create 298.0 123 rot yes mom yes dist gaussian
+fix              nvt    all    nvt temp 298 298 100 #iso 1 1 1000
+
+
+timestep 0.1
+
+neighbor         2.0 bin
+neigh_modify     every 1 delay 0 check yes
+
+thermo           1000
+thermo_style     custom step etotal pe ke temp vol
+thermo_modify    flush yes
+
+dump             1 all xyz 1000 dump.xyz
+dump             2 all custom 1000 dump.reax.tatb id type element q x y z
+dump_modify      1 element C H O Pt 
+dump             3 all dcd 1000 dump.dcd
+dump_modify      3 unwrap yes
+write_data       config.data
+
+run 2000000
+
+clear
+
+#####################Initialization####################
+
+units		 real
+dimension        3
+boundary         p p p
+atom_style       charge
+
+####################Aotm Definition###################
+
+#read_data        box.data
+restart          10000            restart.*
+read_restart restart.2000000
+
+#############Define Intraction Potential##############
+
+pair_style       reax/c lmp_control
+pair_coeff       * *    ffield_PtNiCHO_2016 Pt C H O
+fix              1      all qeq/reax 1 0.0 10.0 1e-6 reax/c
+
+
+###########Setting and Output of Simulation###########
+ 
+group            C      type 1 
+group            HO     type 2 3
+group            Pt     type 4
+group            Ox     type 3
+group            NT     type 1 4
+
+fix              fix    NT     rigid single
+#fix              set    NT      setforce 0. 0. 0.
+velocity         all    create 298.0 123 rot yes mom yes dist gaussian
+fix              nve    all    nve #temp 298 298 100 #iso 1 1 1000
+
+
+timestep 0.1
+
+neighbor         2.0 bin
+neigh_modify     every 1 delay 0 check yes
+
+thermo           1000
+thermo_style     custom step etotal pe ke temp vol
+thermo_modify    flush yes
+
+dump             1 all xyz 1000 dump1.xyz
+dump             2 all custom 1000 dump1.reax.tatb id type element q x y z
+dump_modify      1 element C H O Pt 
+dump             3 all dcd 1000 dump1.dcd
+dump_modify      3 unwrap yes
+write_data       config1.data
+
+run 10000000
