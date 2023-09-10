@@ -26,7 +26,8 @@ group            Pt     type 4
 group            Ox     type 3
 group            NT     type 1 4
 
-fix              fix    all     rigid single
+fix              fix    NT     rigid single
+fix              fix    HO     rigid single
 fix              set    NT      setforce 0. 0. 0.
 velocity         all    create 298.0 123 rot yes mom yes dist gaussian
 fix              nvt    all    nvt temp 298 298 100 #iso 1 1 1000
